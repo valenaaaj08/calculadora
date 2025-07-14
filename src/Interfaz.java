@@ -51,6 +51,7 @@ float[] coef3x3 = new float[12];
 int contadorEcuacion3x3 = 0;
 int cantVectores = 0;
 int cantElementos = 0;
+int operacionVector;
 int vectorActual = 0;
 int elementoActual = 0;
 float[][] vectores;
@@ -61,9 +62,10 @@ int filas = 0, columnas = 0;
 float[][][] matrices;
 int matrizActual = 0, filaActual = 0, columnaActual = 0;
 float escalar;
-int filasA, colsA, filasB, colsB;
+int filasA, columnasA, filasB;
 float[][] matrizA;
 float[][] matrizB;
+
 
 
 
@@ -360,11 +362,12 @@ float[][] matrizB;
 		            int opcion = Integer.parseInt(bufferNumero.trim());
 		            bufferNumero = "";
 		            switch (opcion) {
-		                case 1: 
-		                case 2: 
-		                    pantalla.append("\nIngrese cantidad de vectores (mínimo 2): ");
-		                    estadoOperacion = 1;
-		                    break;
+		            case 1:
+		            case 2: 
+		                operacionVector = opcion; 
+		                pantalla.append("\nIngrese cantidad de vectores (minimo 2): ");
+		                estadoOperacion = 1;
+		                break;
 		                case 3: 
 		                    pantalla.append("\nIngrese cantidad de elementos del vector: ");
 		                    estadoOperacion = 4;
@@ -414,7 +417,7 @@ float[][] matrizB;
 		            bufferNumero = "";
 		            if (opcion == 1) {
 		                pantalla.append("\nIngrese a1: ");
-		                estadoOperacion = 201;
+		                estadoOperacion = 300;
 		            } else if (opcion == 2) {
 		                pantalla.append("\nIngrese a1: ");
 		                estadoOperacion = 301;
@@ -437,10 +440,15 @@ float[][] matrizB;
 		        if (estadoOperacion == 21) {
 		            columnas = Integer.parseInt(bufferNumero.trim());
 		            bufferNumero = "";
-		            if (opcionMatriz == 3) { 
+
+		            if (opcionMatriz == 4) {
+		                columnasA = columnas;
+		                pantalla.append("\nIngrese cantidad de filas de la segunda matriz: ");
+		                estadoOperacion = 241;
+		            } else if (opcionMatriz == 3) {
 		                pantalla.append("\nIngrese escalar: ");
 		                estadoOperacion = 23;
-		            } else if (opcionMatriz == 4 || opcionMatriz == 5) {
+		            } else if (opcionMatriz == 5) {
 		                pantalla.append("\nIngrese cantidad de columnas de la segunda matriz: ");
 		                estadoOperacion = 24;
 		            } else {
@@ -507,6 +515,18 @@ float[][] matrizB;
 		        return;
 		        }
 		        
+		        if (estadoOperacion == 24){
+			        columnas = Integer.parseInt(bufferNumero.trim());
+			        bufferNumero = "";
+			        pantalla.append("\nIngrese elemento [1][1] de la matriz 1: ");
+			        matrices = new float[2][filas * columnas][1];
+			        matrizActual = 0;
+			        filaActual = 0;
+			        columnaActual = 0;
+			        estadoOperacion = 26;
+			        return;
+			    }
+		        
 		        if (estadoOperacion == 25) {
 		        matrices[0][filaActual * columnas + columnaActual][0] = Float.parseFloat(bufferNumero.trim());
 		        bufferNumero = "";
@@ -530,21 +550,7 @@ float[][] matrizB;
 		        }
 		        return;
 		        }
-
-
-		  
-		    if (estadoOperacion == 24){
-		        columnas = Integer.parseInt(bufferNumero.trim());
-		        bufferNumero = "";
-		        pantalla.append("\nIngrese elemento [1][1] de la matriz 1: ");
-		        matrices = new float[2][filas * columnas][1];
-		        matrizActual = 0;
-		        filaActual = 0;
-		        columnaActual = 0;
-		        estadoOperacion = 26;
-		        return;
-		    }
-
+		        
 		    if (estadoOperacion == 26)
 		    {
 		        matrices[matrizActual][filaActual * columnas + columnaActual][0] = Float.parseFloat(bufferNumero.trim());
@@ -559,8 +565,8 @@ float[][] matrizB;
 		            filaActual = 0;
 		            columnaActual = 0;
 		            if (matrizActual == 2) {
-		                float[][] A = convertirA2D(matrices, 0, filas, columnas);
-		                float[][] B = convertirA2D(matrices, 1, columnas, columnas);
+		            	float[][] A = convertirA2D(matrices, 0, filas, columnasA);
+		            	float[][] B = convertirA2D(matrices, 1, columnasA, columnas);
 		                float[][] resultado = multiplicarMatrices(A, B);
 		                pantalla.append("\nResultado:\n");
 		                imprimirMatriz(resultado);
@@ -740,7 +746,34 @@ float[][] matrizB;
 		       
 		    }
 		    
-		    if (estadoOperacion == 201) {
+		    if (estadoOperacion == 241) {
+		        filasB = Integer.parseInt(bufferNumero.trim());
+		        bufferNumero = "";
+		        pantalla.append("\nIngrese cantidad de columnas de la segunda matriz: ");
+		        estadoOperacion = 242;
+		        return;
+		    }
+		    
+		    if (estadoOperacion == 242) {
+		        columnas = Integer.parseInt(bufferNumero.trim());
+		        bufferNumero = "";
+
+		        if (columnasA != filasB) {
+		            pantalla.append("\nError: columnas de A (" + columnasA + ") deben coincidir con filas de B (" + filasB + ").");
+		            estadoOperacion = 0;
+		            return;
+		        }
+
+		        pantalla.append("\nIngrese elemento [1][1] de la matriz 1: ");
+		        matrices = new float[2][filas * columnasA][1];
+		        matrizActual = 0;
+		        filaActual = 0;
+		        columnaActual = 0;
+		        estadoOperacion = 26;
+		        return;
+		    }
+		    
+		    if (estadoOperacion == 300) {
 		        coef2x2[contadorEcuacion2x2++] = Float.parseFloat(bufferNumero.trim());
 		        bufferNumero = "";
 		        if (contadorEcuacion2x2 == 1) pantalla.append("\nIngrese b1: ");
@@ -934,12 +967,12 @@ float[][] matrizB;
 		                }
 		                if (vectorActual == cantVectores) {
 		                    float[] resultadoVector = new float[cantElementos];
-		                    if (pantalla.getText().contains("Suma")) {
+		                    if (operacionVector == 1) {
 		                        for (int i = 0; i < cantVectores; i++)
 		                            for (int j = 0; j < cantElementos; j++)
 		                                resultadoVector[j] += vectores[i][j];
 		                        pantalla.append("\nResultado de la suma: ");
-		                    } else {
+		                    } else if (operacionVector == 2) {
 		                        for (int j = 0; j < cantElementos; j++)
 		                            resultadoVector[j] = vectores[0][j];
 		                        for (int i = 1; i < cantVectores; i++)
